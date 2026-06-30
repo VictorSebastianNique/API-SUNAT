@@ -1,7 +1,7 @@
 // Utilidad para firmar XML usando xml-crypto
 
-function signXml(xmlUnsigned, certBase64, certPassword) {
-  // En producción, aquí se decodifica el certBase64 (el archivo .pfx)
+function signXml(xmlUnsigned, credentials = {}) {
+  // En producción, aquí se decodifica credentials.certificado (el archivo .pfx)
   // y se firma el xmlUnsigned, agregando el tag <ds:Signature>
   
   return new Promise((resolve) => {

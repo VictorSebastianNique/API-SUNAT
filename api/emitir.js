@@ -30,11 +30,18 @@ module.exports = async (req, res) => {
     // 2. Generar XML UBL 2.1
     const xmlUnsigned = generateInvoiceXML(saleData);
 
-    // 3. Firmar XML
-    const xmlSignedData = await signXml(xmlUnsigned, process.env.CERT_BASE64, process.env.CERT_PASSWORD);
+    // 3. Extraer credenciales dinámicas (Multi-Empresa)
+    const credentials = saleData.credentials || { 
+      usuarioSOL: process.env.SUNAT_USER, 
+      claveSOL: process.env.SUNAT_PASSWORD, 
+      certificado: process.env.CERT_BASE64 
+    };
 
-    // 4. Enviar a SUNAT (Solo si no estamos en modo offline/test puro)
-    const sunatResponse = await sendToSunat(xmlSignedData.xml, xmlSignedData.fileName);
+    // 4. Firmar XML
+    const xmlSignedData = await signXml(xmlUnsigned, credentials);
+
+    // 5. Enviar a SUNAT (Solo si no estamos en modo offline/test puro)
+    const sunatResponse = await sendToSunat(xmlSignedData.xml, xmlSignedData.fileName, credentials);
 
     // 5. Responder a la caja
     return res.status(200).json({
